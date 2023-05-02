@@ -1,5 +1,9 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
+const User = require("./model/User.js");
+
+mongoose.connect("mongodb://localhost:27017/FurryFriends");
 
 require("dotenv").config();
 

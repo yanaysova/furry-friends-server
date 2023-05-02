@@ -1,8 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
 const {
   getAllUsersModel,
   addUserModel,
   loginUserModel,
+  updateUserModel,
+  updateUserEmailModel,
+  updateUserPasswordModel,
 } = require("../models/usersModels");
 
 const getAllUsers = (req, res) => {
@@ -15,15 +17,14 @@ const getAllUsers = (req, res) => {
   }
 };
 
-const signup = (req, res) => {
+const signup = async (req, res) => {
   try {
     console.log(req.body);
     const newUser = {
       ...req.body,
-      id: uuidv4(),
     };
-    addUserModel(newUser);
-    res.send(newUser);
+    const addedUser = await addUserModel(newUser);
+    res.send(addedUser);
   } catch (error) {
     console.log(error);
     res.status(500).send(error.message);
@@ -42,8 +43,45 @@ const login = (req, res) => {
   }
 };
 
+const update = (req, res) => {
+  try {
+    const updatedUser = {
+      ...req.body,
+    };
+    const user = updateUserModel(updatedUser);
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+const updateEmail = (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const email = req.body.email;
+    const user = updateUserEmailModel(email, userId);
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+const updatePassword = (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const password = req.body.password;
+    const user = updateUserPasswordModel(password, userId);
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 module.exports = {
   signup,
   getAllUsers,
   login,
+  update,
+  updateEmail,
+  updatePassword,
 };

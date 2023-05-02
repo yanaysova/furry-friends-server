@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const mongoose = require("mongoose");
+const User = require("../model/User.js");
 
 const pathToUsersDb = path.resolve(__dirname, "../usersDb.json");
 
@@ -14,14 +16,17 @@ function getUserByEmailModel(email) {
   return user;
 }
 
-function addUserModel(newUser) {
+async function addUserModel(newUser) {
   try {
-    const usersArray = getAllUsersModel();
-    usersArray.push(newUser);
-    fs.writeFileSync(pathToUsersDb, JSON.stringify(usersArray));
-    return true;
+    const userDoc = await User.create(newUser);
+    console.log(userDoc);
+    return userDoc;
   } catch (error) {
     console.log(error);
+    if (error.code === 11000) {
+      throw new Error("userExistsErr");
+    }
+    throw error;
   }
 }
 
@@ -36,9 +41,48 @@ function loginUserModel(loggedUser) {
   return filteredUser;
 }
 
+function updateUserModel(updatedUser) {
+  const allUsers = getAllUsersModel();
+  const updatedUsers = allUsers.map((user) => {
+    if (user.email === updatedUser.email) {
+      return { ...user, ...updatedUser };
+    }
+    return user;
+  });
+  fs.writeFileSync(pathToUsersDb, JSON.stringify(updatedUsers));
+  return updatedUser;
+}
+
+function updateUserEmailModel(updatedEmail, userId) {
+  const allUsers = getAllUsersModel();
+  const updatedUsers = allUsers.map((user) => {
+    if (user.id === userId) {
+      return { ...user, email: updatedEmail };
+    }
+    return user;
+  });
+  fs.writeFileSync(pathToUsersDb, JSON.stringify(updatedUsers));
+  return updatedUsers.find((user) => user.id === userId);
+}
+
+function updateUserPasswordModel(updatedPassword, userId) {
+  const allUsers = getAllUsersModel();
+  const updatedUsers = allUsers.map((user) => {
+    if (user.id === userId) {
+      return { ...user, password: updatedPassword };
+    }
+    return user;
+  });
+  fs.writeFileSync(pathToUsersDb, JSON.stringify(updatedUsers));
+  return updatedUsers.find((user) => user.id === userId);
+}
+
 module.exports = {
   getAllUsersModel,
   addUserModel,
   loginUserModel,
   getUserByEmailModel,
+  updateUserModel,
+  updateUserEmailModel,
+  updateUserPasswordModel,
 };

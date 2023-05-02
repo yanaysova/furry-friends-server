@@ -1,5 +1,3 @@
-const { v4: uuidv4 } = require("uuid");
-
 const {
   addPetModel,
   getAllPetsModel,
@@ -31,7 +29,6 @@ const addPet = (req, res) => {
     console.log(req.body);
     const newPet = {
       ...req.body,
-      id: uuidv4(),
     };
     addPetModel(newPet);
     res.send(newPet);

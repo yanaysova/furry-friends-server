@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { validateBody } = require("../middleware/validateBody");
-const { userSchema } = require("../schemas/allSchemas");
+const { userSchema, emailSchema } = require("../schemas/allSchemas");
 const usersController = require("../controllers/usersController");
 const { isEmailExists } = require("../middleware/usersMiddleware");
 
@@ -16,10 +16,15 @@ router.post(
 
 router.post("/login", usersController.login);
 
+router.put("/:userId", usersController.update);
+
 router.put(
-  "/:userId",
-  (req, res, next) => {},
-  (req, res) => {}
+  "/:userId/email",
+  validateBody(emailSchema),
+  isEmailExists,
+  usersController.updateEmail
 );
+
+router.put("/:userId/password", usersController.updatePassword);
 
 module.exports = router;
