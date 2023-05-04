@@ -1,24 +1,15 @@
-const express = require("express");
+const app = require("./app");
 const mongoose = require("mongoose");
-const cors = require("cors");
-const User = require("./model/User.js");
-
-mongoose.connect("mongodb://localhost:27017/FurryFriends");
-
 require("dotenv").config();
 
-const PORT = process.env.PORT;
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD
+);
 
-const app = express();
+mongoose.connect(DB).then(() => console.log("DB Connection Engaged"));
 
-const usersRouter = require("./routes/usersRoute");
-const petsRouter = require("./routes/petsRoute");
-
-app.use(express.json());
-app.use(cors());
-app.use("/users", usersRouter);
-app.use("/pets", petsRouter);
-
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Listening on port:${PORT}`);
 });

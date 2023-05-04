@@ -5,6 +5,8 @@ const { userSchema, emailSchema } = require("../schemas/allSchemas");
 const usersController = require("../controllers/usersController");
 const { isEmailExists } = require("../middleware/usersMiddleware");
 
+router.param("userId", usersController.checkId);
+
 router.get("/", usersController.getAllUsers);
 
 router.post(

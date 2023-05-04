@@ -31,7 +31,7 @@ const signup = async (req, res) => {
   }
 };
 
-const login = (req, res) => {
+const login = async (req, res) => {
   try {
     const loggedUser = {
       ...req.body,
@@ -77,6 +77,19 @@ const updatePassword = (req, res) => {
   }
 };
 
+const checkId = (req, res, next, val) => {
+  console.log(val);
+  const allUsers = getAllUsersModel();
+  const user = allUsers.find((user) => user.id == val);
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "invalid ID",
+    });
+  }
+  next();
+};
+
 module.exports = {
   signup,
   getAllUsers,
@@ -84,4 +97,5 @@ module.exports = {
   update,
   updateEmail,
   updatePassword,
+  checkId,
 };
