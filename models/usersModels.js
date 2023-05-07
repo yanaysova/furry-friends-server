@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
-const User = require("../model/User.js");
+const User = require("./userModel.js");
 
 const pathToUsersDb = path.resolve(__dirname, "../usersDb.json");
 
@@ -30,7 +30,7 @@ async function addUserModel(newUser) {
   }
 }
 
-function loginUserModel(loggedUser) {
+async function loginUserModel(loggedUser) {
   const filteredUser = getUserByEmailModel(loggedUser.email);
   if (!filteredUser) {
     throw new Error("emailErr");

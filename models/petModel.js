@@ -4,13 +4,37 @@ const petSchema = new mongoose.Schema({
   type: {
     type: String,
     required: [true, "Pet type missing"],
+    enum: {
+      values: ["Dog", "Cat"],
+      message: "Type is either: Dog, Cat",
+    },
   },
   name: {
     type: String,
     required: [true, "Pet name missing"],
+    trim: true,
+    maxLength: [15, "Pet name cannot be more than 15 characters"],
+    minLength: [2, "Pet name cannot be less than 20 characters"],
+  },
+  gender: {
+    type: String,
+    required: [true, "Pet gender missing"],
+    enum: {
+      values: ["Male", "Female"],
+      message: "Gender is either: Male, Female",
+    },
+  },
+  age: {
+    type: Number,
+    max: [30, "Invalid age, cannot be greater than 30 years"],
+    required: [true, "Age missing"],
   },
   adoptionStatus: {
     type: String,
+    enum: {
+      values: ["Adopted", "Fostered", "Available"],
+      message: "Status is either: Adopted, Fostered, Available",
+    },
     default: "Available",
   },
   picture: {
@@ -25,17 +49,29 @@ const petSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Weight missing"],
   },
-  color: String,
-  bio: String,
+  color: {
+    type: String,
+    required: [true, "Pet color is missing"],
+    trim: true,
+  },
+  bio: {
+    type: String,
+    trim: true,
+  },
   hypoallergnic: {
     type: Boolean,
     required: [true, "Hypoallergnic info missing"],
   },
-  diatery: Array,
+  diatery: [String],
   breed: {
     type: String,
     required: [true, "Pet breed missing"],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  editedAt: Date,
 });
 
 const Pet = mongoose.model("Pet", petSchema);

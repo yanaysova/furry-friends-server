@@ -1,3 +1,5 @@
+const catchAsync = require("../utils/catchAsync");
+const User = require("../models/userModel");
 const {
   getAllUsersModel,
   addUserModel,
@@ -5,7 +7,7 @@ const {
   updateUserModel,
   updateUserEmailModel,
   updateUserPasswordModel,
-} = require("../models/usersModels");
+} = require("../models/userModel");
 
 const getAllUsers = (req, res) => {
   try {
@@ -17,31 +19,23 @@ const getAllUsers = (req, res) => {
   }
 };
 
-const signup = async (req, res) => {
-  try {
-    console.log(req.body);
-    const newUser = {
-      ...req.body,
-    };
-    const addedUser = await addUserModel(newUser);
-    res.send(addedUser);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send(error.message);
-  }
-};
+const signup = catchAsync(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+  res.status(201).json({
+    status: "success",
+    data: {
+      user: newUser,
+    },
+  });
+});
 
-const login = async (req, res) => {
-  try {
-    const loggedUser = {
-      ...req.body,
-    };
-    const user = loginUserModel(loggedUser);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
+const login = catchAsync(async (req, res, next) => {
+  const loggedUser = {
+    ...req.body,
+  };
+  const user = loginUserModel(loggedUser);
+  res.send(user);
+});
 
 const update = (req, res) => {
   try {
