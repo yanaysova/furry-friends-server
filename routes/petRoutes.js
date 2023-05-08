@@ -6,10 +6,6 @@ const {
   addEditDate,
 } = require("../middleware/petMiddlewares");
 
-const app = express();
-
-app.use(express.json());
-
 router.route("/").get(petControllers.getPets).post(petControllers.addPet);
 
 router.route("/stats").get(petControllers.getPetStats);

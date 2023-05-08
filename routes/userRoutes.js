@@ -5,8 +5,10 @@ const { userSchema, emailSchema } = require("../schemas/allSchemas");
 const userControllers = require("../controllers/userControllers");
 const {
   isEmailExist,
+  isUserExist,
   encryptPwd,
   validatePwd,
+  generateToken,
 } = require("../middleware/userMiddlewares");
 
 router.param("userId", userControllers.checkId);
@@ -15,7 +17,13 @@ router.get("/", userControllers.getAllUsers);
 
 router.post("/signup", isEmailExist, encryptPwd, userControllers.signup);
 
-router.post("/login", validatePwd, userControllers.login);
+router.post(
+  "/login",
+  isUserExist,
+  validatePwd,
+  generateToken,
+  userControllers.login
+);
 
 router.put("/:userId", userControllers.update);
 

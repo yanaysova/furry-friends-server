@@ -1,4 +1,5 @@
 const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 const User = require("../models/userModel");
 const {
   getAllUsersModel,
@@ -30,11 +31,18 @@ const signup = catchAsync(async (req, res, next) => {
 });
 
 const login = catchAsync(async (req, res, next) => {
-  const loggedUser = {
-    ...req.body,
-  };
-  const user = loginUserModel(loggedUser);
-  res.send(user);
+  const { user } = req.body;
+  res.status(200).json({
+    status: "success",
+    user: {
+      ID: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phoneNum: user.phoneNum,
+      isAdmin: user.isAdmin,
+    },
+  });
 });
 
 const update = (req, res) => {
