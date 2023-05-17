@@ -5,8 +5,13 @@ const {
   aliasNewestAdittions,
   addEditDate,
 } = require("../middleware/petMiddlewares");
+const { upload } = require("../middleware/uploadMiddleware");
+const { auth, checkAdmin } = require("../middleware/authMiddleware");
 
-router.route("/").get(petControllers.getPets).post(petControllers.addPet);
+router
+  .route("/")
+  .get(petControllers.getPets)
+  .post(auth, checkAdmin, upload.single("picture"), petControllers.addPet);
 
 router.route("/stats").get(petControllers.getPetStats);
 
@@ -17,7 +22,13 @@ router
 router
   .route("/:id")
   .get(petControllers.getPetById)
-  .patch(addEditDate, petControllers.editPet)
+  .patch(
+    auth,
+    checkAdmin,
+    upload.single("picture"),
+    addEditDate,
+    petControllers.editPet
+  )
   .delete(petControllers.deletePet);
 
 router.route("/:id/adpot").post(petControllers.adoptPet);

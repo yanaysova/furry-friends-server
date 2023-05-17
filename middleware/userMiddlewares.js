@@ -15,73 +15,20 @@ const isEmailExist = catchAsync(async (req, res, next) => {
 });
 
 const isUserExist = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new AppError("Please provide an email and password", 400));
+  }
+  const user = await User.findOne({ email }).select("+password");
   if (user) {
     req.body.user = user;
     next();
   } else {
-    res.status(409).send("Invalid email");
+    next(new AppError("Invalid email", 409));
   }
 });
-
-const encryptPwd = async (req, res, next) => {
-  const saltRounds = 10;
-  bcrypt.genSalt(saltRounds, function (err, salt) {
-    bcrypt.hash(req.body.password, salt, function (err, hash) {
-      if (err) {
-        return res.status(500).send("Password encryption failed");
-      }
-      req.body.password = hash;
-      next();
-    });
-  });
-};
-
-const validatePwd = catchAsync(async (req, res, next) => {
-  const { user, password } = req.body;
-  bcrypt.compare(password, user.password, (err, result) => {
-    if (err) {
-      return next(new AppError("Password decryption failed", 500));
-    }
-    if (!result) {
-      return next(new AppError("Incorrect Password", 404));
-    }
-    if (result) {
-      next();
-    }
-  });
-});
-
-const generateToken = (req, res, next) => {
-  const { user } = req.body;
-  const userId = user._id.toString();
-  const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "1d",
-  });
-  req.token = token;
-  next();
-};
-
-const auth = (req, res, next) => {
-  if (!req.headers.authorization) {
-    return res.status("401").send("Authorization headers required");
-  }
-  const token = req.headers.authorization.replace("Bearer ", "");
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(500).send("Unauthorization token");
-    } else {
-      req.body.userId = decoded.id;
-      next();
-    }
-  });
-};
 
 module.exports = {
   isEmailExist,
-  encryptPwd,
-  validatePwd,
-  auth,
-  generateToken,
   isUserExist,
 };

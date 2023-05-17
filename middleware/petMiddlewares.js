@@ -10,7 +10,13 @@ const addEditDate = (req, res, next) => {
   next();
 };
 
+const createImageUrl = (req, res, next) => {
+  const imageUrl = `http://localhost:8080${req.file.filename}`;
+  req.body.picture = imageUrl;
+};
+
 module.exports = {
   aliasNewestAdittions,
   addEditDate,
+  createImageUrl,
 };

@@ -1,46 +1,43 @@
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const APIFeatures = require("../utils/apiFeatures");
 const User = require("../models/userModel");
-const {
-  getAllUsersModel,
-  addUserModel,
-  loginUserModel,
-  updateUserModel,
-  updateUserEmailModel,
-  updateUserPasswordModel,
-} = require("../models/userModel");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-const getAllUsers = (req, res) => {
-  try {
-    const allUsers = getAllUsersModel();
-    res.send(allUsers);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send(error.message);
-  }
-};
-
-const signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create(req.body);
-  res.status(201).json({
+const getUsers = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(User.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const results = await features.query;
+  res.status(200).json({
     status: "success",
+    userId: req.body.userId,
+    results: results.length,
     data: {
-      user: newUser,
+      results,
     },
   });
 });
 
-const login = catchAsync(async (req, res, next) => {
-  const { user } = req.body;
-  res.status(200).json({
+const signup = catchAsync(async (req, res, next) => {
+  const newUser = await User.create({
+    email: req.body.email,
+    password: req.body.password,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    phoneNum: req.body.phoneNum,
+  });
+  res.status(201).json({
     status: "success",
-    user: {
-      ID: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phoneNum: user.phoneNum,
-      isAdmin: user.isAdmin,
+    data: {
+      user: {
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+      },
     },
   });
 });
@@ -94,8 +91,7 @@ const checkId = (req, res, next, val) => {
 
 module.exports = {
   signup,
-  getAllUsers,
-  login,
+  getUsers,
   update,
   updateEmail,
   updatePassword,

@@ -26,7 +26,7 @@ const petSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    max: [30, "Invalid age, cannot be greater than 30 years"],
+    max: [30, "Age cannot be greater than 30 years"],
     required: [true, "Age missing"],
   },
   adoptionStatus: {
@@ -58,7 +58,7 @@ const petSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  hypoallergnic: {
+  hypoallergenic: {
     type: Boolean,
     required: [true, "Hypoallergnic info missing"],
   },
@@ -70,6 +70,10 @@ const petSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  createdBy: {
+    type: String,
+    default: "Admin",
   },
   editedAt: Date,
 });

@@ -6,6 +6,8 @@ const catchAsync = require("../utils/catchAsync");
 // Route: ‘/pet’ [POST] (Protected to admin only)
 // Handle photo upload
 const addPet = catchAsync(async (req, res, next) => {
+  req.body.picture = req.file.path;
+  req.body.createdBy = req.user._id;
   const newPet = await Pet.create(req.body);
   res.status(201).json({
     status: "success",
@@ -14,6 +16,7 @@ const addPet = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 // Route: ‘/pet/:id’ [GET]
 const getPetById = catchAsync(async (req, res, next) => {
   const result = await Pet.findById(req.params.id);
@@ -27,10 +30,9 @@ const getPetById = catchAsync(async (req, res, next) => {
 });
 
 // Route: ‘/pet/:id’ [PUT] (protected to admin only)
-// Validate all the user input is valid
-// Handle photo upload
 
 const editPet = catchAsync(async (req, res, next) => {
+  req.body.picture = req.file.path;
   const updatedPet = await Pet.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
