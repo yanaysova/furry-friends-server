@@ -10,4 +10,6 @@ router.post("/refresh", authControllers.refresh);
 
 router.get("/validate", auth, authControllers.validate);
 
+router.post("/logout", authControllers.logout);
+
 module.exports = router;

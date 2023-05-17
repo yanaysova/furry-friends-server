@@ -39,6 +39,7 @@ const login = catchAsync(async (req, res, next) => {
   });
 });
 
+//Refreshes expired accsess tokens with valid refresh token
 const refresh = catchAsync(async (req, res, next) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) {
@@ -65,6 +66,7 @@ const refresh = catchAsync(async (req, res, next) => {
   );
 });
 
+//Validates accsess token for persistent login
 const validate = (req, res, next) => {
   res.status(200).json({
     valid: true,
@@ -72,10 +74,16 @@ const validate = (req, res, next) => {
   });
 };
 
-//logout
+const logout = (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.sendStatus(204);
+  res.clearCookie("jwt", { httpOnly: true, secure: false });
+  res.json({ message: "Cookie cleared" });
+};
 
 module.exports = {
   login,
   refresh,
   validate,
+  logout,
 };
