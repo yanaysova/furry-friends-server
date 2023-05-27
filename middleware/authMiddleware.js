@@ -19,7 +19,7 @@ const auth = catchAsync(async (req, res, next) => {
     }
 
     //Checks if user exist (or deleted)
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id).select("+password");
     if (!currentUser) {
       return next(
         new AppError("The user belongs to the token no longer exist.", 401)
@@ -37,6 +37,14 @@ const checkAdmin = catchAsync(async (req, res, next) => {
   next();
 });
 
+const replacePwd = (req, res, next) => {
+  if (!req.body.newPassword) {
+    return next(new AppError("New password missing", 400));
+  }
+  req.body.password = req.body.newPassword;
+  next();
+};
+
 const encryptPwd = async (req, res, next) => {
   const saltRounds = 10;
   bcrypt.genSalt(saltRounds, function (err, salt) {
@@ -51,7 +59,10 @@ const encryptPwd = async (req, res, next) => {
 };
 
 const validatePwd = catchAsync(async (req, res, next) => {
-  const { user, password } = req.body;
+  let { user, password } = req.body;
+  if (!user && req.user) {
+    user = req.user;
+  }
   bcrypt.compare(password, user.password, (err, result) => {
     if (err) {
       return next(new AppError("Password decryption failed", 500));
@@ -70,6 +81,7 @@ module.exports = {
   encryptPwd,
   validatePwd,
   checkAdmin,
+  replacePwd,
 };
 
 // const auth = catchAsync(async (req, res, next) => {

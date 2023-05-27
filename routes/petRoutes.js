@@ -4,6 +4,8 @@ const petControllers = require("../controllers/petControllers");
 const {
   aliasNewestAdittions,
   addEditDate,
+  isAvailable,
+  defineStatus,
 } = require("../middleware/petMiddlewares");
 const { upload } = require("../middleware/uploadMiddleware");
 const { auth, checkAdmin } = require("../middleware/authMiddleware");
@@ -13,7 +15,7 @@ router
   .get(petControllers.getPets)
   .post(auth, checkAdmin, upload.single("picture"), petControllers.addPet);
 
-router.route("/stats").get(petControllers.getPetStats);
+router.route("/stats").get(auth, checkAdmin, petControllers.getPetStats);
 
 router
   .route("/3-newest-additions")
@@ -31,15 +33,17 @@ router
   )
   .delete(petControllers.deletePet);
 
-router.route("/:id/adpot").post(petControllers.adoptPet);
+router
+  .route("/:id/adopt")
+  .post(auth, isAvailable, defineStatus, petControllers.adoptFosterPet);
 
-router.route("/:id/return").post(petControllers.returnPet);
+router.route("/:id/return").post(auth, petControllers.returnPet);
 
 router
   .route("/:id/save")
-  .post(petControllers.savePet)
-  .delete(petControllers.deleteSavedPet);
+  .post(auth, petControllers.savePet)
+  .delete(auth, petControllers.deleteSavedPet);
 
-router.route("/user/:id").get(petControllers.getPetsByUserId);
+router.route("/user/:id").get(auth, petControllers.getPetsByUserId);
 
 module.exports = router;

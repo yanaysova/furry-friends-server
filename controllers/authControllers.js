@@ -35,6 +35,34 @@ const login = catchAsync(async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       isAdmin: user.isAdmin,
+      phoneNum: user.phoneNum,
+      email: user.email,
+      savedPets: user.savedPets,
+      adoptedPets: user.adoptedPets,
+      fosteredPets: user.fosteredPets,
+    },
+  });
+});
+
+const signup = catchAsync(async (req, res, next) => {
+  const newUser = await User.create({
+    email: req.body.email,
+    password: req.body.password,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    phoneNum: req.body.phoneNum,
+  });
+  const refreshToken = createRefreshToken(newUser._id);
+  const accessToken = createAccsessToken(newUser._id);
+  res.cookie("jwt", refreshToken, cookieOptions);
+  res.status(201).json({
+    status: "success",
+    token: accessToken,
+    user: {
+      ID: newUser.id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      isAdmin: newUser.isAdmin,
     },
   });
 });
@@ -59,7 +87,6 @@ const refresh = catchAsync(async (req, res, next) => {
       if (!foundUser) {
         return next(new AppError("Unauthorized", 401));
       }
-      console.log(foundUser);
       const accessToken = createAccsessToken(foundUser._id);
       res.json({ token: accessToken });
     })
@@ -70,7 +97,17 @@ const refresh = catchAsync(async (req, res, next) => {
 const validate = (req, res, next) => {
   res.status(200).json({
     valid: true,
-    user: req.user,
+    user: {
+      ID: req.user.id,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      isAdmin: req.user.isAdmin,
+      phoneNum: req.user.phoneNum,
+      email: req.user.email,
+      savedPets: req.user.savedPets,
+      adoptedPets: req.user.adoptedPets,
+      fosteredPets: req.user.fosteredPets,
+    },
   });
 };
 
@@ -86,4 +123,5 @@ module.exports = {
   refresh,
   validate,
   logout,
+  signup,
 };

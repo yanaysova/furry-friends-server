@@ -25,14 +25,17 @@ const petSchema = new mongoose.Schema({
     },
   },
   age: {
-    type: Number,
-    max: [30, "Age cannot be greater than 30 years"],
-    required: [true, "Age missing"],
+    type: String,
+    required: [true, "Pet age missing"],
+    enum: {
+      values: ["Puppy", "Young", "Adult", "Senior"],
+      message: "Age is either: Puppy, Young, Adult or Senior",
+    },
   },
   adoptionStatus: {
     type: String,
     enum: {
-      values: ["Adopted", "Fostered", "Available"],
+      values: ["Adopted", "Fostered", "Available", "Inactive"],
       message: "Status is either: Adopted, Fostered, Available",
     },
     default: "Available",
@@ -76,6 +79,10 @@ const petSchema = new mongoose.Schema({
     default: "Admin",
   },
   editedAt: Date,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 const Pet = mongoose.model("Pet", petSchema);

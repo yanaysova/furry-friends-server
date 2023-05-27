@@ -1,8 +1,5 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
-const catchAsync = require("../utils/catchAsync");
 require("dotenv").config();
 
 const isEmailExist = catchAsync(async (req, res, next) => {

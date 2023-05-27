@@ -1,8 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const authControllers = require("../controllers/authControllers");
-const { isUserExist } = require("../middleware/userMiddlewares");
-const { validatePwd, auth } = require("../middleware/authMiddleware");
+const { isUserExist, isEmailExist } = require("../middleware/userMiddlewares");
+const {
+  encryptPwd,
+  validatePwd,
+  auth,
+} = require("../middleware/authMiddleware");
+
+router.post("/signup", isEmailExist, encryptPwd, authControllers.signup);
 
 router.post("/login", isUserExist, validatePwd, authControllers.login);
 

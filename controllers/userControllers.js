@@ -1,8 +1,7 @@
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
 const APIFeatures = require("../utils/apiFeatures");
+const AppError = require("../utils/appError");
 const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const getUsers = catchAsync(async (req, res, next) => {
@@ -22,78 +21,87 @@ const getUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-const signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    email: req.body.email,
-    password: req.body.password,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    phoneNum: req.body.phoneNum,
-  });
-  res.status(201).json({
+const getUserAll = catchAsync(async (req, res, next) => {
+  const result = await User.findById(req.params.id).populate([
+    "savedPets",
+    "adoptedPets",
+    "fosteredPets",
+  ]);
+  if (!result) {
+    return next(new AppError("User ID invalid", 404));
+  }
+  res.status(200).json({
     status: "success",
-    data: {
-      user: {
-        email: newUser.email,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-      },
-    },
+    data: result,
   });
 });
 
-const update = (req, res) => {
-  try {
-    const updatedUser = {
-      ...req.body,
-    };
-    const user = updateUserModel(updatedUser);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error.message);
+const changeRole = catchAsync(async (req, res, next) => {
+  if (req.user._id === req.params.userId) {
+    return next(new AppError("Cannot Demote Self", 403));
   }
-};
+  const result = await User.findByIdAndUpdate(req.params.userId, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    return next(new AppError("User ID invalid", 404));
+  }
+  res.status(200).json({
+    status: "success",
+  });
+});
 
-const updateEmail = (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const email = req.body.email;
-    const user = updateUserEmailModel(email, userId);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error.message);
+const updateEmail = catchAsync(async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!updatedUser) {
+    return next(new AppError("User ID invalid", 404));
   }
-};
+  res.status(200).json({
+    status: "success",
+    data: updatedUser,
+  });
+});
 
-const updatePassword = (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const password = req.body.password;
-    const user = updateUserPasswordModel(password, userId);
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error.message);
+const updateInfo = catchAsync(async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!updatedUser) {
+    return next(new AppError("User ID invalid", 404));
   }
-};
+  res.status(200).json({
+    status: "success",
+    data: updatedUser,
+  });
+});
 
-const checkId = (req, res, next, val) => {
-  console.log(val);
-  const allUsers = getAllUsersModel();
-  const user = allUsers.find((user) => user.id == val);
-  if (!user) {
-    return res.status(404).json({
-      status: "fail",
-      message: "invalid ID",
-    });
+const updatePassword = catchAsync(async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { password: req.body.password } },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!updatedUser) {
+    return next(new AppError("User ID invalid", 404));
   }
-  next();
-};
+  res.status(200).json({
+    status: "success",
+  });
+});
 
 module.exports = {
-  signup,
   getUsers,
-  update,
+  changeRole,
   updateEmail,
   updatePassword,
-  checkId,
+  getUserAll,
+  updateInfo,
 };

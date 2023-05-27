@@ -1,7 +1,8 @@
 class APIFeatures {
-  constructor(query, queryString) {
+  constructor(query, queryString, collation) {
     this.query = query;
     this.queryString = queryString;
+    this.collation = collation;
   }
 
   filter() {
@@ -10,6 +11,35 @@ class APIFeatures {
     const excludeFields = ["page", "sort", "limit", "fields"];
     excludeFields.forEach((element) => delete queryObject[element]);
 
+    //Removes empty query fields
+    for (const element in queryObject) {
+      if (queryObject[element] === "") {
+        delete queryObject[element];
+      }
+    }
+
+    //Regex enabled fields
+    [
+      "firstName",
+      "lastName",
+      "email",
+      "phoneNum",
+      "name",
+      "breed",
+      "color",
+    ].forEach((field) => {
+      if (queryObject[field]) {
+        queryObject[field] = { $regex: queryObject[field], $options: "i" };
+      }
+    });
+
+    //Excludes inactive pets
+    if (queryObject.includeInactive === "false") {
+      queryObject.adoptionStatus = { $ne: "inactive" };
+    }
+
+    delete queryObject.includeInactive;
+
     //Filtering with operators
     let queryString = JSON.stringify(queryObject);
     queryString = queryString.replace(
@@ -17,7 +47,6 @@ class APIFeatures {
       (match) => `$${match}`
     );
     this.query = this.query.find(JSON.parse(queryString));
-
     return this;
   }
 
@@ -42,9 +71,16 @@ class APIFeatures {
 
   paginate() {
     const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 10;
+    const limit = this.queryString.limit * 1 || 50;
     const skip = (page - 1) * limit;
     this.query = this.query.skip(skip).limit(limit);
+    return this;
+  }
+
+  applyCollation() {
+    if (this.collation) {
+      this.query = this.query.collation(this.collation);
+    }
     return this;
   }
 }
