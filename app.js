@@ -11,7 +11,15 @@ const authRouter = require("./routes/authRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://furry-friends-client.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/pet", petRouter);

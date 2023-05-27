@@ -18,8 +18,9 @@ const createAccsessToken = (id) => {
 
 const cookieOptions = {
   maxAge: 864000000,
-  secure: false,
   httpOnly: true,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: process.env.NODE_ENV === "production" ? true : false,
 };
 
 const login = catchAsync(async (req, res, next) => {
